@@ -6,6 +6,13 @@
 *.lo
 *.o
 *.obj
+*.cmake
+CMakeCache.txt
+Makefile
+
+# Compiled Object folders
+*/CMakeFiles
+*.vs/
 
 # Precompiled Headers
 *.gch
