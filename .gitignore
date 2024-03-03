@@ -9,10 +9,14 @@
 *.cmake
 CMakeCache.txt
 Makefile
+*.enc
+*.filters
+
 
 # Compiled Object folders
 */CMakeFiles
 *.vs/
+*/Telemaster/x64/
 
 # Precompiled Headers
 *.gch
@@ -37,3 +41,9 @@ Makefile
 *.exe
 *.out
 *.app
+
+# Autosave
+*~$*
+
+# Libraries
+*/libraries/Eigen

@@ -1,0 +1,14 @@
+[
+{
+  "directory": "C:/Users/igmso/Desktop/Telemaster/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe   -g -std=gnu++11 -o CMakeFiles\\teste.dir\\teste.cpp.obj -c C:\\Users\\igmso\\Desktop\\Telemaster\\C++\\teste.cpp",
+  "file": "C:/Users/igmso/Desktop/Telemaster/C++/teste.cpp",
+  "output": "CMakeFiles/teste.dir/teste.cpp.obj"
+},
+{
+  "directory": "C:/Users/igmso/Desktop/Telemaster/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe   -g -std=gnu++11 -o CMakeFiles\\teste.dir\\libraries\\aero.cpp.obj -c C:\\Users\\igmso\\Desktop\\Telemaster\\C++\\libraries\\aero.cpp",
+  "file": "C:/Users/igmso/Desktop/Telemaster/C++/libraries/aero.cpp",
+  "output": "CMakeFiles/teste.dir/libraries/aero.cpp.obj"
+}
+]
