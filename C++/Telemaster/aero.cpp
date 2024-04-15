@@ -1,15 +1,21 @@
 #include "aero.h"
 
-aero::aero() : u{ nullptr, nullptr, nullptr, nullptr}, internal {}, y{}
+aero::aero()
 {
+    memset(&y, 0, sizeof(y));
+    memset(&u, 0, sizeof(u));
+    memset(&internal, 0, sizeof(internal));
 }
 
 void aero::update() 
-{
+{   
+    // Wind
+    internal.V_rel = *u.v_b - *u.Wind;
+    
     // Aerodynamics System
     internal.V = u.v_b->norm();
-    internal.alpha = atan2(u.v_b->z(), u.v_b->x());
-    internal.beta = asin(u.v_b->y()/internal.V);
+    internal.alpha = atan2(internal.V_rel.z(), internal.V_rel.x());
+    internal.beta = asin(internal.V_rel.y() /internal.V);
     internal.Cba = AngleAxisd(internal.alpha, Vector3d(0.0,-1.0,0.0)) * AngleAxisd(internal.beta, Vector3d(0.0, 0.0, -1.0));
 
     // Aerodynamics Derivatives
@@ -40,11 +46,15 @@ void aero::update()
     internal.Cndr = 0.001833;
     internal.Cnp  = 4E-06 * pow(internal.beta, 2) - 0.0291;
     internal.Cnr  = 2E-05 * pow(internal.beta, 2) - 0.1366;
-
-    // Aerodynamics Coefficients
     
-
-    if (internal.V == 0.0)
+    // Aircraft Geometry
+    internal.S = 0.9324;
+    internal.c = 0.42;
+    internal.b = 2.220;
+    internal.Aw = 5.2857;
+    internal.k = 0.0492;
+    
+    if (internal.V < 10.0)
     {
         internal.CL = 0.0;
         internal.CD = 0.0;
@@ -55,20 +65,20 @@ void aero::update()
     }
     else
     {
-        internal.CL = internal.CL0 + internal.CLa * internal.alpha + internal.CLde * (u.cmd->y() * 180.0 / M_PI) + internal.CLq * ((u.w_b->y() * (*u.Geo)(1)) / (2.0 * internal.V));
-        internal.CD = internal.CD0 + internal.CDda * (u.cmd->x() * 180.0 / M_PI) + internal.CDde * (u.cmd->y() * 180.0 / M_PI) + internal.CDdr * (u.cmd->z() * 180.0 / M_PI) + pow(internal.CL, 2) * (*u.Geo)(5);
-        internal.CM = internal.CM0 + internal.CMa * internal.alpha + internal.CMde * (u.cmd->y() * 180.0 / M_PI) + internal.CMq * ((u.w_b->y() * (*u.Geo)(1)) / (2.0 * internal.V));
-        internal.CY = internal.CYb * internal.beta + internal.CYda * (u.cmd->x() * 180.0 / M_PI) + internal.CYdr * (u.cmd->z() * 180.0 / M_PI) + internal.CYp * ((u.w_b->x() * (*u.Geo)(2)) / (2.0 * internal.V)) + internal.CYr * ((u.w_b->z() * (*u.Geo)(2)) / (2.0 * internal.V));
-        internal.Cl = internal.Clb * internal.beta + internal.Clda * (u.cmd->x() * 180.0 / M_PI) + internal.Cldr * (u.cmd->z() * 180.0 / M_PI) + internal.Clp * ((u.w_b->x() * (*u.Geo)(2)) / (2.0 * internal.V)) + internal.Clr * ((u.w_b->z() * (*u.Geo)(2)) / (2.0 * internal.V));
-        internal.Cn = internal.Cnb * internal.beta + internal.Cnda * (u.cmd->x() * 180.0 / M_PI) + internal.Cndr * (u.cmd->z() * 180.0 / M_PI) + internal.Cnp * ((u.w_b->x() * (*u.Geo)(2)) / (2.0 * internal.V)) + internal.Cnr * ((u.w_b->z() * (*u.Geo)(2)) / (2.0 * internal.V));
+        internal.CL = internal.CL0 + internal.CLa * internal.alpha + internal.CLde * ((*u.cmd)(1) * 180.0 / M_PI) + internal.CLq * ((u.w_b->y() * internal.c) / (2.0 * internal.V));
+        internal.CD = internal.CD0 + internal.CDda * ((*u.cmd)(0) * 180.0 / M_PI) + internal.CDde * ((*u.cmd)(1) * 180.0 / M_PI) + internal.CDdr * ((*u.cmd)(2) * 180.0 / M_PI) + pow(internal.CL, 2) * internal.k;
+        internal.CM = internal.CM0 + internal.CMa * internal.alpha + internal.CMde * ((*u.cmd)(1) * 180.0 / M_PI) + internal.CMq * ((u.w_b->y() * internal.c) / (2.0 * internal.V));
+        internal.CY = internal.CYb * internal.beta + internal.CYda * ((*u.cmd)(0) * 180.0 / M_PI) + internal.CYdr * ((*u.cmd)(2) * 180.0 / M_PI) + internal.CYp * ((u.w_b->x() * internal.b) / (2.0 * internal.V)) + internal.CYr * ((u.w_b->z() * internal.b) / (2.0 * internal.V));
+        internal.Cl = internal.Clb * internal.beta + internal.Clda * ((*u.cmd)(0) * 180.0 / M_PI) + internal.Cldr * ((*u.cmd)(2) * 180.0 / M_PI) + internal.Clp * ((u.w_b->x() * internal.b) / (2.0 * internal.V)) + internal.Clr * ((u.w_b->z() * internal.b) / (2.0 * internal.V));
+        internal.Cn = internal.Cnb * internal.beta + internal.Cnda * ((*u.cmd)(0) * 180.0 / M_PI) + internal.Cndr * ((*u.cmd)(2) * 180.0 / M_PI) + internal.Cnp * ((u.w_b->x() * internal.b) / (2.0 * internal.V)) + internal.Cnr * ((u.w_b->z() * internal.b) / (2.0 * internal.V));
     }
 
-    internal.D = 0.5 * (*u.rho) * pow(internal.V, 2) * internal.CD * (*u.Geo)(0);
-    internal.Y = 0.5 * (*u.rho) * pow(internal.V, 2) * internal.CY * (*u.Geo)(0);
-    internal.L = 0.5 * (*u.rho) * pow(internal.V, 2) * internal.CL * (*u.Geo)(0);
-    internal.l = 0.5 * (*u.rho) * pow(internal.V, 2) * internal.Cl * (*u.Geo)(0) * (*u.Geo)(2);
-    internal.M = 0.5 * (*u.rho) * pow(internal.V, 2) * internal.CM * (*u.Geo)(0) * (*u.Geo)(1);
-    internal.N = 0.5 * (*u.rho) * pow(internal.V, 2) * internal.Cn * (*u.Geo)(0) * (*u.Geo)(2);
+    internal.D = 0.5 * (*u.rho) * pow(internal.V, 2) * internal.CD * internal.S;
+    internal.Y = 0.5 * (*u.rho) * pow(internal.V, 2) * internal.CY * internal.S;
+    internal.L = 0.5 * (*u.rho) * pow(internal.V, 2) * internal.CL * internal.S;
+    internal.l = 0.5 * (*u.rho) * pow(internal.V, 2) * internal.Cl * internal.S * internal.b;
+    internal.M = 0.5 * (*u.rho) * pow(internal.V, 2) * internal.CM * internal.S * internal.c;
+    internal.N = 0.5 * (*u.rho) * pow(internal.V, 2) * internal.Cn * internal.S * internal.b;
 }
 
 void aero::get_output() 

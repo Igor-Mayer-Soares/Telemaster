@@ -10,7 +10,7 @@
 CMakeCache.txt
 Makefile
 *.enc
-*.filters
+*.filtersgma
 
 
 # Compiled Object folders

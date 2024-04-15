@@ -128,9 +128,21 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="aero.h" />
+    <ClInclude Include="airframe.h" />
+    <ClInclude Include="dynamics.h" />
+    <ClInclude Include="gravity.h" />
+    <ClInclude Include="isa.h" />
+    <ClInclude Include="prop.h" />
+    <ClInclude Include="sim.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="aero.cpp" />
+    <ClCompile Include="airframe.cpp" />
+    <ClCompile Include="dynamics.cpp" />
+    <ClCompile Include="gravity.cpp" />
+    <ClCompile Include="isa.cpp" />
+    <ClCompile Include="prop.cpp" />
+    <ClCompile Include="sim.cpp" />
     <ClCompile Include="Simulator.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
