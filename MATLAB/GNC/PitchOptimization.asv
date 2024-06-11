@@ -1,0 +1,82 @@
+function cost = PitchOptimization(PID,Pitch,G_lon)
+
+opt = bodeoptions;
+opt.FreqUnits = 'Hz';
+opt.Grid = 'on';
+
+
+%% Modelos lineares
+
+Sum1 = sumblk('eTheta = theta_c - theta');
+
+DR = tf(1/Pitch.tau);
+DR.InputName = 'eTheta';
+DR.OutputName = 'q_c';
+
+Sum2 = sumblk('eq = q_c - q');
+
+PitchControl = pid(PID(1),PID(2),PID(3));
+PitchControl.InputName = 'eq';
+PitchControl.OutputName = 'elevator';
+
+Goloop = connect(G_lon,Sum1,DR,Sum2,PitchControl,{'eTheta'},{'theta'});
+Gcloop = connect(G_lon,Sum1,DR,Sum2,PitchControl,{'theta_c'},{'theta'});
+
+%% Modelo ideal
+wn = 1.5;
+qsi = 0.707;
+
+theta_ideal = tf((wn*2*pi)^2,[1 (2*qsi*wn*(2*pi)) (wn*(2*pi))^2]);
+
+step_ideal = stepinfo(theta_ideal);
+
+bw_req = bandwidth(theta_ideal);
+
+%% Função Custo
+[Gm,Pm,~,~] = margin(Goloop);
+Gm          = 20*log10(Gm);
+bw          = bandwidth(Goloop)/(2*pi);
+step_info   = stepinfo(Gcloop);
+
+if isinf(bw)
+    bw = 100;
+end
+
+if isnan(Gm) || isinf(Gm)
+    Gm = 6;
+end
+if isnan(Pm) || isinf(Pm)
+    Pm = 30;
+end
+if isnan(bw) || isinf(bw)
+    bw = 100;
+end
+
+dGm = abs(Gm)/6;
+dPm = abs(Pm)/30;
+
+dbw = abs(bw/(2*pi))/3;
+
+
+%% Cálculo do custo
+if dGm > 1
+    cost_GM = 0;
+else
+    cost_GM = 30*(1-dGm);
+end
+if dPm > 1
+    cost_PM = 0;
+else
+    cost_PM = 30*(1-dPm);
+end
+if dbw ~= 1
+    if dbw > 1
+        cost_BW = 50*(dbw-1);
+    else
+        cost_BW = 50*(1-dbw);
+    end
+end
+
+cost = cost_GM+cost_PM+cost_BW
+
+end

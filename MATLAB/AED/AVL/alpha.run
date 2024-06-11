@@ -1,0 +1,11 @@
+load
+Telemaster.avl
+mass
+Telemaster.mass
+mset 0
+oper
+a a 15.0000
+x
+st
+Results\A15
+quit

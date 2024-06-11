@@ -1,0 +1,17 @@
+
+
+
+load
+Telemaster.avl
+mass
+Telemaster.mass
+mset 0
+oper
+c1
+V 15
+
+x
+st
+teste.eig
+quit
+
