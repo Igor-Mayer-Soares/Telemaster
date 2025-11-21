@@ -47,3 +47,8 @@ Makefile
 
 # Libraries
 */libraries/Eigen
+
+*.mat
+*.slxc
+*.r20*
+slprj/
