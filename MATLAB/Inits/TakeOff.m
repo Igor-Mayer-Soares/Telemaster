@@ -12,4 +12,4 @@ TO.x     = 0;
 TO.y     = 0;
 TO.z     = 0;
 
-TO.alt0  = 0;
+TO.alt0  = 647;

@@ -3,7 +3,7 @@ clear
 close all
 clc
 addpath(genpath('../MATLAB'))
-dt = 1/4000;
+dt = 1/1000;
 t = 0:dt:10;
 t = t.';
 u = zeros(length(t),4);
